@@ -86,12 +86,15 @@ class NewSessionChoices(
  * (`POST /api/messages`, multipart). [clientMessageId] makes the send idempotent: the server answers
  * the send it already made for an id it has seen, so a retry reuses the id and never mints a new one.
  * [draftAttachmentIds] are the files already on the draft that this send claims, exactly those.
+ * [supersededDraftAttachmentIds] are uploads this send carries inline in [files] instead: the server
+ * withdraws them from the draft whether or not they have arrived.
  */
 suspend fun ApiClient.postMessage(
     clientMessageId: String,
     text: String,
     sessionId: String? = null,
     draftAttachmentIds: List<String> = emptyList(),
+    supersededDraftAttachmentIds: List<String> = emptyList(),
     files: List<MessageFile> = emptyList(),
     newSession: NewSessionChoices = NewSessionChoices(),
 ): PostMessageResponse {
@@ -103,6 +106,7 @@ suspend fun ApiClient.postMessage(
             .apply {
                 sessionId?.let { field("session_id", it) }
                 draftAttachmentIds.forEach { field("draft_attachment_ids", it) }
+                supersededDraftAttachmentIds.forEach { field("superseded_draft_attachment_ids", it) }
                 files.forEach { file("files", it.filename, it.contentType, it.bytes) }
                 newSession.sessionType?.let { field("session_type", it) }
                 newSession.workingDir?.let { field("working_dir", it) }
