@@ -1,0 +1,80 @@
+package com.frederikberg.pai
+
+import android.content.ActivityNotFoundException
+import android.net.Uri
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.browser.customtabs.CustomTabsIntent
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import com.frederikberg.pai.kit.session.SessionState
+import com.frederikberg.pai.nav.AppNavigation
+import com.frederikberg.pai.platform.ThemeChoice
+import com.frederikberg.pai.signin.SignInRoute
+import com.frederikberg.pai.ui.theme.PaiTheme
+import kotlinx.coroutines.launch
+
+class MainActivity : ComponentActivity() {
+    private lateinit var graph: AppGraph
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+        graph = (application as PaiApp).graphFor(FixtureMode.requested(intent))
+        setContent {
+            val theme by graph.preferences.theme.collectAsState()
+            val sessionState by graph.session.state.collectAsState()
+            PaiTheme(
+                darkTheme =
+                    when (theme) {
+                        ThemeChoice.System -> isSystemInDarkTheme()
+                        ThemeChoice.Light -> false
+                        ThemeChoice.Dark -> true
+                    },
+            ) {
+                when (val state = sessionState) {
+                    is SessionState.SignedOut ->
+                        SignInRoute(
+                            session = graph.session,
+                            rejection = state.rejection,
+                            fixtureMode = graph.fixtureMode,
+                            openBrowser = ::openBrowser,
+                            launch = { block -> graph.appScope.launch { block() } },
+                        )
+                    is SessionState.SignedIn ->
+                        AppNavigation(
+                            graph = graph,
+                            connection = state.connection,
+                            versionName = BuildConfig.VERSION_NAME,
+                            onSignOut = graph.session::signOut,
+                        )
+                }
+            }
+        }
+    }
+
+    /** The streams run only while the app is on screen; coming back reconnects at once and replays what was missed. */
+    override fun onStart() {
+        super.onStart()
+        graph.session.onForeground()
+    }
+
+    override fun onStop() {
+        graph.session.onBackground()
+        super.onStop()
+    }
+
+    /** Called from the sign-in coroutine, which runs off the main thread. */
+    private fun openBrowser(url: String) {
+        runOnUiThread {
+            try {
+                CustomTabsIntent.Builder().build().launchUrl(this, Uri.parse(url))
+            } catch (_: ActivityNotFoundException) {
+                graph.session.reportBrowserUnavailable()
+            }
+        }
+    }
+}

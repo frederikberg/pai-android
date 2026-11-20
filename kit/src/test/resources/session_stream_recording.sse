@@ -1,0 +1,19 @@
+: padding
+
+id: 2
+event: init
+data: {"entries": [{"id": 1, "session_id": "00000000-0000-4000-8000-0000000000a1", "type": "user", "subtype": null, "timestamp": "2026-11-20T09:01:00+00:00", "content": "Hello there", "thinking": null, "tool_calls": null, "tool_result": null, "hook_summary": null, "tokens": null, "created_at": "2026-11-20T09:01:00+00:00"}, {"id": 2, "session_id": "00000000-0000-4000-8000-0000000000a1", "type": "assistant", "subtype": null, "timestamp": "2026-11-20T09:02:00+00:00", "content": "Let me look.", "thinking": null, "tool_calls": [{"id": "t1", "name": "Read", "input": {"file_path": "/home/guest/notes.txt"}}], "tool_result": null, "hook_summary": null, "tokens": {"input_tokens": 12, "output_tokens": 30, "service_tier": "standard"}, "created_at": "2026-11-20T09:02:00+00:00"}], "cursor": 2, "has_more": false, "session_tokens": 18400}
+
+event: status
+data: {"status": "active", "state": "blocked", "blocker": {"kind": "choice_prompt", "question": "Proceed?", "options": [{"key": "1", "label": "Yes"}, {"key": "2", "label": "No"}]}, "turn_state": "working", "display_state": "working", "secret_grantable": false, "secret_prompt": null, "activity_counts": {"agents": 0, "tasks": 1}, "model": "sonnet", "live_model": null, "pending_model": null, "ultrafast_model": null, "thinking": null, "transferred_to_session_id": null, "transferred_at": null, "no_memory": false, "closed_unexpectedly": false, "queued": 1, "queued_texts": ["one more thing"], "pending_sends": [{"id": 7, "text": "one more thing"}], "last_error": null}
+
+event: ping
+data: 
+
+id: 3
+event: batch
+data: {"entries": [{"id": 3, "session_id": "00000000-0000-4000-8000-0000000000a1", "type": "tool_result", "subtype": null, "timestamp": "2026-11-20T09:03:00+00:00", "content": "contents", "thinking": null, "tool_calls": null, "tool_result": {"tool_use_id": "t1", "tool_name": "Read", "content": "contents", "is_error": false}, "hook_summary": null, "tokens": null, "created_at": "2026-11-20T09:03:00+00:00"}], "session_tokens": 18900}
+
+event: draft
+data: {"key": "00000000-0000-4000-8000-0000000000a1"}
+
