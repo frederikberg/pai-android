@@ -1,0 +1,13 @@
+.gradle/
+build/
+local.properties
+.idea/
+*.iml
+.kotlin/
+captures/
+.cxx/
+*.keystore
+# The Firebase project configuration of a release build; see docs/development.md
+app/google-services.json
+*.jks
+.claude/
